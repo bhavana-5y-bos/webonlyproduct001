@@ -1,0 +1,134 @@
+﻿@model dynamic;
+@if (@Model != null)
+{
+    <nav id="sidebar" class="sidebar-wrapper">
+        <div class="sidebar-content">
+            <div class="sidebar-brand">
+                <a href="#">
+                    <img src="../images/logo.png" />
+                </a>
+                <div id="close-sidebar">
+                    <i class="fas fa-times"></i>
+                </div>
+            </div>
+
+            <div class="sidebar-header">
+                @if (@Model.Initials != null)
+                {
+                    <div style="margin-left: 30%;">
+                        <p data-letters="@Model.Initials"></p>
+                    </div>
+                }
+                else
+                {
+                    <div class="user-pic">
+                        <img class="img-responsive img-rounded" src="https://raw.githubusercontent.com/azouaoui-med/pro-sidebar-template/gh-pages/src/img/user.jpg"
+                             alt="User picture">
+                    </div>
+                }
+                <div class="user-info">
+                    @if (@Model.Username != null)
+                    {
+                        <strong>@Model.Username</strong>
+                    }
+                    @if (@Model.Roles != null)
+                    {
+                        <span class="user-role">@Model.Roles</span>
+                    }
+                    <span class="user-status">
+                        <i class="fa fa-circle"></i>
+                        <span>Online</span>
+                    </span>
+                </div>
+            </div>
+
+            <div class="sidebar-menu">
+                <ul id="navigation-tree">
+
+                    @if (Model.ModuleOperations != null)
+                    {
+                        @foreach (var module in Model.ModuleOperations)
+                        {
+                            @if (module.ChildModules.Count == 0)
+                            {
+                                if (@module.Code != "PRMNS")
+                                {
+                                    <li id="@module.Id" parentmoduleid="@module.ParentModuleId">
+                                        <a asp-controller="Navigation" asp-action="NavigateToModule" asp-route-id="@module.Id" asp-route-code="@module.Code" asp-route-isdefault="@module.IsDefault">
+                                            <i class="fa fa-tachometer-alt"></i>
+                                            <span>@module.Name</span>
+                                        </a>
+                                    </li>
+                                }
+                            }
+                            else
+                            {
+                                <li class="sidebar-dropdown">
+                                    <a asp-controller="Navigation" asp-action="NavigateToModule" asp-route-id="@module.Id" asp-route-code="@module.Code" asp-route-isdefault="@module.IsDefault">
+                                        <i class="far fa-user"></i>
+                                        <span>@module.Name</span>
+                                    </a>
+
+                                    <div class="sidebar-submenu" id="@module.Id" parentmoduleid="@module.ParentModuleId">
+                                        <ul>
+                                            @foreach (var submodule in module.ChildModules)
+                                            {
+                                                <partial name="~/Views/Shared/Navigation/NavigationMenuItem.cshtml" model="@module.ChildModules" />
+                                            }
+                                        </ul>
+                                    </div>
+                                </li>
+                            }
+                        }
+                    }
+                </ul>
+            </div>
+            <!-- sidebar-menu  -->
+        </div>
+        <!-- sidebar-content  -->
+        <div class="sidebar-footer">
+            <a href="#">
+                <i class="fa fa-bell"></i>
+                <span class="badge badge-pill badge-warning notification">3</span>
+            </a>
+            <a href="#">
+                <i class="fa fa-envelope"></i>
+                <span class="badge badge-pill badge-success notification">7</span>
+            </a>
+            <a href="#">
+                <i class="fa fa-cog"></i>
+                <span class="badge-sonar"></span>
+            </a>
+            <a href="#">
+                <i class="fa fa-power-off" onclick="InitiateLogout();"></i>
+            </a>
+        </div>
+    </nav>
+}
+<style>
+    [data-letters]:before {
+        content: attr(data-letters);
+        display: inline-block;
+        font-size: 2.5em;
+        width: 2.5em;
+        height: 2.5em;
+        line-height: 2.5em;
+        text-align: center;
+        border-radius: 50%;
+        background: plum;
+        vertical-align: middle;
+        margin-right: 5em;
+        color: white;
+    }
+</style>
+
+
+@if (Model != null && Model.CurrentModuleId != null)
+{
+    <script>
+        $(document).ready(function () {
+            DisplayDashboardCustomMessage(Model.CurrentModuleId);
+            NavigationState(Model.CurrentModuleId);
+        });
+    </script>
+}

@@ -1,0 +1,113 @@
+﻿<ul id="navigation-tree">
+    @if (Model.ModuleOperations != null)
+    {
+        @foreach (var module in Model.ModuleOperations)
+        {
+            @if (module.ChildModules.Count == 0)
+            {
+                if (@module.Code != "PRMNS")
+                {
+                    <li id="@module.Id">
+                        <a asp-controller="Navigation" asp-action="NavigateToModule" id="@module.Id" asp-route-id="@module.Id" asp-route-code="@module.Code" asp-route-isdefault="@module.IsDefault" parentmoduleid="@module.ParentModuleId">
+                            <i class="fa fa-tachometer-alt"></i>
+                            <span>@module.Name</span>
+                        </a>
+                    </li>
+                }
+            }
+            else
+            {
+                <li class="sidebar-dropdown" id="@module.Id">
+                    <a asp-controller="Navigation" asp-action="NavigateToModule" id="@module.Id" asp-route-id="@module.Id" asp-route-code="@module.Code" asp-route-isdefault="@module.IsDefault" parentmoduleid="@module.ParentModuleId">
+                        <i class="far fa-user"></i>
+                        <span>@module.Name</span>
+                    </a>
+                    <div class="sidebar-submenu" id="@module.Id">
+                        <ul>
+                            @foreach (var subModule in module.ChildModules)
+                            {
+                                if (subModule.ChildModules.Count == 0)
+                                {
+                                    <li id="@subModule.Id">
+                                        <a asp-controller="Navigation" asp-action="NavigateToModule" id="@subModule.Id" asp-route-id="@subModule.Id" asp-route-code="@subModule.Code" asp-route-isdefault="@subModule.IsDefault" parentmoduleid="@subModule.ParentModuleId">
+                                            @subModule.Name
+                                        </a>
+                                    </li>
+                                }
+                                else
+                                {
+                                    <li class="sidebar-dropdown" id="@subModule.Id">
+                                        <a asp-controller="Navigation" asp-action="NavigateToModule" id="@subModule.Id" asp-route-id="@subModule.Id" asp-route-code="@subModule.Code" asp-route-isdefault="@subModule.IsDefault" parentmoduleid="@subModule.ParentModuleId">
+                                            <i class="far fa-user"></i>
+                                            <span>@subModule.Name</span>
+                                        </a>
+                                        <div class="sidebar-submenu" id="@subModule.Id">
+                                            <ul>
+                                                @foreach (var subSubModule in subModule.ChildModules)
+                                                {
+                                                    if (subSubModule.ChildModules.Count == 0)
+                                                    {
+                                                        <li id="@subSubModule.Id">
+                                                            <a asp-controller="Navigation" asp-action="NavigateToModule" id="@subSubModule.Id" asp-route-id="@subSubModule.Id" asp-route-code="@subSubModule.Code" asp-route-isdefault="@subSubModule.IsDefault" parentmoduleid="@subSubModule.ParentModuleId">
+                                                                @subSubModule.Name
+                                                            </a>
+                                                        </li>
+                                                    }
+                                                    else
+                                                    {
+                                                        <li class="sidebar-dropdown" id="@subSubModule.Id">
+                                                            <a asp-controller="Navigation" asp-action="NavigateToModule" id="@subSubModule.Id" asp-route-id="@subSubModule.Id" asp-route-code="@subSubModule.Code" asp-route-isdefault="@subSubModule.IsDefault" parentmoduleid="@subSubModule.ParentModuleId">
+                                                                <i class="far fa-user"></i>
+                                                                <span>@subSubModule.Name</span>
+                                                            </a>
+                                                            <div class="sidebar-submenu" id="@subSubModule.Id">
+                                                                <ul>
+                                                                    @foreach (var subSubSubModule in subSubModule.ChildModules)
+                                                                    {
+                                                                        if (subSubSubModule.ChildModules.Count == 0)
+                                                                        {
+                                                                            <li id="@subSubSubModule.Id">
+                                                                                <a asp-controller="Navigation" asp-action="NavigateToModule" id="@subSubSubModule.Id" asp-route-id="@subSubSubModule.Id" asp-route-code="@subSubSubModule.Code" asp-route-isdefault="@subSubSubModule.IsDefault" parentmoduleid="@subSubSubModule.ParentModuleId">
+                                                                                    @subSubSubModule.Name
+                                                                                </a>
+                                                                            </li>
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <li class="sidebar-dropdown" id="@subSubSubModule.Id">
+                                                                                <a asp-controller="Navigation" asp-action="NavigateToModule" id="@subSubSubModule.Id" asp-route-id="@subSubSubModule.Id" asp-route-code="@subSubSubModule.Code" asp-route-isdefault="@subSubSubModule.IsDefault" parentmoduleid="@subSubSubModule.ParentModuleId">
+                                                                                    <i class="far fa-user"></i>
+                                                                                    <span>@subSubSubModule.Name</span>
+                                                                                </a>
+                                                                                <div class="sidebar-submenu" id="@subSubSubModule.Id">
+                                                                                    <ul>
+                                                                                        @foreach (var subSubSubSubModule in subSubSubModule.ChildModules)
+                                                                                        {
+                                                                                            <li id="@subSubSubSubModule.Id">
+                                                                                                <a asp-controller="Navigation" asp-action="NavigateToModule" id="@subSubSubSubModule.Id" asp-route-id="@subSubSubSubModule.Id" asp-route-code="@subSubSubSubModule.Code" asp-route-isdefault="@subSubSubSubModule.IsDefault" parentmoduleid="@subSubSubSubModule.ParentModuleId">
+                                                                                                    @subSubSubSubModule.Name
+                                                                                                </a>
+                                                                                            </li>
+                                                                                        }
+                                                                                    </ul>
+                                                                                </div>
+                                                                            </li>
+                                                                        }
+                                                                    }
+                                                                </ul>
+                                                            </div>
+                                                        </li>
+                                                    }
+                                                }
+                                            </ul>
+                                        </div>
+                                    </li>
+                                }
+                            }
+                        </ul>
+                    </div>
+                </li>
+            }
+        }
+    }
+</ul>

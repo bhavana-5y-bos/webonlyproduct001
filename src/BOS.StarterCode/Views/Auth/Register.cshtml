@@ -1,0 +1,80 @@
+﻿@model BOS.StarterCode.Models.RegistrationModel
+
+@{
+    ViewData["Title"] = "Register";
+}
+
+<div class="login_container height-auto">
+    <form asp-action="RegisterUser">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="row">
+            <div class="col-sm-12 text-center">
+                <img class="logo_image mt-3" src="../images/logo.png" />
+            </div>
+            <div class="col-md-6">
+                <div class="form-group position-relative">
+                    <label asp-for="FirstName" class="control-label"></label>
+                    <input asp-for="FirstName" class="form-control" placeholder="Enter First Name" />
+                    <span asp-validation-for="FirstName" class="text-danger error_text"></span>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group position-relative">
+                    <label asp-for="LastName" class="control-label"></label>
+                    <input asp-for="LastName" class="form-control" placeholder="Enter Last Name" />
+                    <span asp-validation-for="LastName" class="text-danger error_text"></span>
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <div class="form-group position-relative">
+                    <label asp-for="EmailAddress" class="control-label"></label>
+                    <input asp-for="EmailAddress" class="form-control" placeholder="Enter Email Address" />
+                    <span asp-validation-for="EmailAddress" class="text-danger error_text"></span>
+                </div>
+            </div>
+            @*<div class="col-md-6 none">
+                <div class="form-group position-relative">
+                    <label asp-for="Password" class="control-label"></label>
+                    <input asp-for="Password" class="form-control" placeholder="Enter Password" value="password"/>
+                    <span asp-validation-for="Password" class="text-danger error_text"></span>
+                </div>
+            </div>
+            <div class="col-md-6 none">
+                <div class="form-group position-relative">
+                    <label asp-for="ConfirmPassword" class="control-label"></label>
+                    <input asp-for="ConfirmPassword" class="form-control" placeholder="Confirm Password" value="password"/>
+                    <span asp-validation-for="ConfirmPassword" class="text-danger error_text"></span>
+                </div>
+            </div>*@
+
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <button class="btn btn-primary d-block w-100">Register</button>
+                </div>
+                @Html.ValidationMessage("CustomError")
+            </div>
+
+            <div class="col-md-12 text-right float-right">
+                <p>Already have an account?<a href='javascript:history.go(-1)'>Log In</a></p>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('[data-toggle="tooltip"]').tooltip();
+        $('[data-toggle="popover"]').popover();
+    });
+
+</script>
+
+<style>
+    .field-validation-error {
+        color: red;
+    }
+</style>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

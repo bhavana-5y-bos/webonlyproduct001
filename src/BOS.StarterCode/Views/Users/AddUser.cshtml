@@ -1,0 +1,274 @@
+﻿
+@using BOS.StarterCode.Helpers;
+
+@model dynamic;
+
+@{
+    ViewData["Title"] = "Add User";
+}
+
+<script type="text/javascript">
+    var Model=@JavaScriptConvert.SerializeObject(Model);
+    Model.Role =@(JavaScriptConvert.SerializeObject(User.FindFirst(c => c.Type == "Role").Value.ToString()));
+    @{
+        var UserRole = User.FindFirst(c => c.Type == "Role").Value.ToString();
+        var IsUserAllowed = UserRole.Contains("Admin");
+        var UserId = User.FindFirst(c => c.Type == "UserId").Value.ToString();
+
+    }
+</script>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <h1 class="mt-3">Add New User</h1>
+        </div>
+        <div class="col-md-12">
+            <form autocomplete="off">
+                <div class="row">
+                    <div class="col-md-4"></div>
+                    <div class="col-md-4">
+                        <div class="row">
+                            <div class="col-md-6 mt-3">
+                                <div class="form-group">
+                                    <label>
+                                        First Name <span style="color: red;">*</span>
+                                    </label>
+                                    <input type="text" id="addUserFirstName" class="form-control" placeholder="Enter First Name" autocomplete="off" required />
+                                    <span id="spanFirstName" style="color: red;"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mt-3">
+                                <div class="form-group">
+                                    <label>
+                                        Last Name <span style="color: red;">*</span>
+                                    </label>
+                                    <input type="text" id="addUserLastName" class="form-control" placeholder="Enter Last Name" autocomplete="off" required>
+                                    <span id="spanLastName" style="color: red;"></span>
+                                </div>
+                            </div>
+                            <div class="col-sm-12 mt-3">
+                                <div class="form-group">
+                                    <label>
+                                        Email Address <span style="color: red;">*</span>
+                                    </label>
+                                    <input type="email" id="addUserEmail" class="form-control" placeholder="Enter Email Address" autocomplete="off" required />
+                                    <span id="spanEmail" style="color: red;"></span>
+                                </div>
+                            </div>
+                            <div class="col-sm-12 mt-3">
+                                <div class="form-group">
+                                    <label>
+                                        Username <span style="color: red;">*</span>
+                                    </label>
+                                    <input type="text" id="addUserUsername" class="form-control" placeholder="Enter Username" autocomplete="off" required />
+                                    <span id="spanUsername" style="color: red;"></span>
+                                </div>
+                            </div>
+                            <br />
+                            <div class="col-md-6 mt-3">
+                                <div class="form-group" id="divRoleBase">
+                                    <h4>
+                                        Roles
+                                    </h4>
+
+                                    @{
+                                        @if (IsUserAllowed)
+                                        {
+                                            try
+                                            {
+                                                if (Model != null && Model.AvailableRoles != null)
+                                                {
+                                                    @foreach (var role in Model.AvailableRoles)
+                                                    {
+                                                        <input type="checkbox" value="@role.Id" id="@role.Id" name="@role.Name" /> @role.Name <br />
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    <p style="font-style:italic; color:gray">No roles are available currently. This might disallow you to add any user. Please create a new role if not already present or try again later</p>
+                                                }
+                                            }
+                                            catch (Exception)
+                                            {
+
+                                            }
+                                        }
+                                    }
+                                    <span id="spanRoles" style="color: red;"></span>
+                                </div>
+                            </div>
+                            <div class="col-sm-12 mt-3">
+                                <div class="form-group">
+                                    <input type="checkbox" id="addUserSendEmail" checked="checked" onchange="AddUserSendEmailClicked(this); return false;" />
+                                    <span id="addUserSendEmailSpan" style="font-size:large; font-weight: 200; cursor: pointer" onclick="AddUserSendEmailClicked(this); return false;"> Send user an email with a link to set the password</span>
+                                    <p style="font-style: italic"> Note: If you choose to not sent the email, you will have to set the password for the user</p>
+                                </div>
+                            </div>
+
+                            <div class="col-sm-12 mt-3 none" id="addUserPasswordBase">
+                                <div class="form-group">
+                                    <label>
+                                        Password
+                                    </label>
+                                    <input type="password" id="addUserPassword" class="form-control" placeholder="Enter Password" autocomplete="off" />
+                                    <span id="spanPassword" style="color: red;"></span>
+                                    <table>
+                                        <tbody>
+                                            <tr>
+                                                <td>
+                                                    <div id="meter_wrapper">
+                                                        <div id="meter"></div>
+                                                    </div>
+                                                </td>
+                                                <td> <div id="pass_type"></div></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div class="col-sm-12 mt-3 none" id="addUserConfirmPasswordBase">
+                                <div class="form-group">
+                                    <label>
+                                        Confirm Password
+                                    </label>
+                                    <input type="password" id="addUserConfirmPassword" class="form-control" placeholder="Confirm Password" autocomplete="off" />
+                                </div>
+                            </div>
+                            <span id="confirmPasswordMismatch" style="color: red;"></span>
+                            <div class="col-sm-12">
+                                <div class="form-group">
+                                    <br />
+                                    <button class="btn btn-primary d-block w-100" onclick="AddUser(); return false;">Add</button>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <a asp-action="Index">Back to Users List</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4"></div>
+                </div>
+                @Html.ValidationMessage("CustomError")
+            </form>
+        </div>
+    </div>
+</div>
+@{
+    @Html.Hidden("IsUserAllowed", IsUserAllowed);
+}
+
+@if (ViewBag.Message != null)
+{
+    <script>
+        $(document).ready(function () {
+            $(function () {
+                setTimeout(function () {
+                    alert(@ViewBag.Message);
+                 DisplayDialog({ Success: true, Message: '@ViewBag.Message' });
+                }, 500);
+            });
+        });
+    </script>
+}
+
+<style>
+    .field-validation-error {
+        color: red;
+    }
+
+    #meter_wrapper {
+        margin-top: 20px;
+        width: 200px;
+        height: 15px;
+        border-radius: 3px;
+    }
+
+    #meter {
+        width: 0px;
+        height: 15px;
+        border-radius: 0;
+    }
+
+    #pass_type {
+        font-size: 15px;
+        margin-top: 20px;
+        color: grey;
+        margin-left: 10px;
+    }
+</style>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        setTimeout(function () {
+            $("#addUserFirstName")[0].value = "";
+            $("#addUserLastName")[0].value = "";
+            $("#addUserUsername")[0].value = "";
+            $("#addUserEmail")[0].value = "";
+            $("#addUserPassword")[0].value = "";
+            $("#addUserConfirmPassword")[0].value = "";
+        }, 600);
+
+        $("#addUserPassword").keyup(function () {
+            CheckPasswordStrength();
+        });
+    });
+
+
+    $('#addUserFirstName').on('keyup', function () {
+        if ($("#addUserFirstName")[0].value.length > 0) {
+            $("#spanFirstName")[0].innerHTML = '';
+        }
+    });
+
+    $('#addUserLastName').on('keyup', function () {
+        if ($("#addUserLastName")[0].value.length > 0) {
+            $("#spanLastName")[0].innerHTML = '';
+        }
+    });
+
+    $('#addUserEmail').on('keyup', function () {
+        if ($("#addUserEmail")[0].value.length > 0) {
+            var isEmailValide = IsEmailValid($("#addUserEmail")[0].value);
+            if (!isEmailValide)
+                $("#spanEmail")[0].innerHTML = "Incorrect email format";
+            else
+                $("#spanEmail")[0].innerHTML = '';
+        }
+    });
+
+    $('#addUserUsername').on('keyup', function () {
+        if ($("#addUserUsername")[0].value.length > 0) {
+            $("#spanUsername")[0].innerHTML = '';
+        }
+    });
+
+    $('#addUserPassword').on('keyup', function () {
+        if ($("#addUserPassword")[0].value.length > 0) {
+            var strongRegex = new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!#\$%\^&\*@@])(?=.{8,})");
+            if (!strongRegex.test($("#addUserPassword")[0].value)) {
+                $("#spanPassword")[0].innerHTML = "Passwords must be at least 8 characters and contain at least one upper case (A - Z), one lower case (a - z), one number(0 - 9) and an special character(e.g. !#$@@%^&*)";
+            }
+            else {
+                $("#spanPassword")[0].innerHTML = "";
+            }
+        }
+    });
+
+    $('#addUserConfirmPassword').on('keyup', function () {
+        if ($("#addUserConfirmPassword")[0].value.length > 0) {
+            if ($("#addUserPassword")[0].value !== $("#addUserConfirmPassword")[0].value) {
+                $("#confirmPasswordMismatch")[0].innerHTML = "Passwords do not match";
+            }
+            else {
+                $("#confirmPasswordMismatch")[0].innerHTML = "";
+            }
+        }
+    });
+
+</script>
+

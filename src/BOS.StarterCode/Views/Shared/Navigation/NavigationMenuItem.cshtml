@@ -1,0 +1,34 @@
+﻿@model dynamic;
+
+@foreach (var module in Model)
+{
+    @if (module.ChildModules.Count == 0)
+    {
+        if (@module.Code != "PRMNS")
+        {
+            <li id="@module.Id" parentmoduleid="@module.ParentModuleId">
+                <a asp-controller="Navigation" asp-action="NavigateToModule" asp-route-id="@module.Id" asp-route-code="@module.Code" asp-route-isdefault="@module.IsDefault">
+                    <span>@module.Name</span>
+                </a>
+            </li>
+        }
+    }
+    else
+    {
+        <li class="sidebar-dropdown">
+            <a asp-controller="Navigation" asp-action="NavigateToModule" asp-route-id="@module.Id" asp-route-code="@module.Code" asp-route-isdefault="@module.IsDefault">
+                <span>@module.Name</span>
+            </a>
+
+            <div class="sidebar-submenu" id="@module.Id" parentmoduleid="@module.ParentModuleId">
+                <ul>
+                    @foreach (var submodule in module.ChildModules)
+                    {
+                        <partial name="~/Views/Shared/Navigation/NavigationMenuItem.cshtml" model="@module.ChildModules" />
+                    }
+                </ul>
+            </div>
+
+        </li>
+    }
+}

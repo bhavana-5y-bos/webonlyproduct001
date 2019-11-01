@@ -1,0 +1,19 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/.vs/config/applicationhost.config
+*.dtbcache
+*.lock
+/.vs/BOS.StarterCode/v15/Server/sqlite3
+*.suo
+/src/NUnitTestProject1/obj
+/tests/BOS.StarterCode.Tests/obj
+/.vs
+/src/BOS.StarterCode/compilerconfig.json.defaults
+/src/BOS.StarterCode/compilerconfig.json
+/tests/BOS.StarterCode.Tests/obj
+/tests/BOS.StarterCode.Tests/bin
+
+/src/BOS.StarterCode/Logs/ErrorLog_10-21-2019.txt
+/src/BOS.StarterCode/Logs

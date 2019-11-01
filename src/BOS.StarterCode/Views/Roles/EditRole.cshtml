@@ -1,0 +1,80 @@
+﻿@model BOS.StarterCode.Models.BOSModels.Role
+
+@{
+    ViewData["Title"] = "EditRole";
+}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <h1 class="mt-3">Edit Role</h1>
+        </div>
+        <div class="col-md-12">
+            <div class="row mt-5">
+                <div class="col-md-4"></div>
+                <div class="col-md-4">
+                    <form asp-action="UpdateRole">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <div class="form-group none">
+                            <label asp-for="Id" class="control-label"></label>
+                            <input asp-for="Id" class="form-control" />
+                            <span asp-validation-for="Id" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Name" class="control-label"></label>
+                            <input asp-for="Name" class="form-control" />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Description" class="control-label"></label>
+                            <input asp-for="Description" class="form-control" />
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+                        <div class="form-group none">
+                            <label asp-for="Rank" class="control-label"></label>
+                            <input asp-for="Rank" class="form-control" required />
+                            <span asp-validation-for="Rank" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <input type="submit" value="Save" class="btn btn-primary" />
+                        </div>
+                        @Html.ValidationMessage("CustomError")
+                    </form>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <a asp-action="Index">Back to Roles</a>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="col-md-4"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+@if (ViewBag.Message != null)
+{
+    <script>
+        $(document).ready(function () {
+            $(function () {
+                var message = @ViewBag.Message;
+                if (message.indexOf('success') > -1)
+                    DisplayDialog({ Success: true, Message: message });
+                else
+                    DisplayDialog({ Success: false, Message: message });
+            });
+        });
+    </script>
+}
+
+<style>
+    .field-validation-error {
+        color: red;
+    }
+</style>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

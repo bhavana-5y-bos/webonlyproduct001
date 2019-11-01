@@ -1,0 +1,32 @@
+﻿@using BOS.StarterCode.Helpers;
+
+@model dynamic;
+
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<script type="text/javascript">
+    var Model=@JavaScriptConvert.SerializeObject(Model);
+</script>
+
+@if (Model.Message != null && Model.StackTrace != null)
+{
+    <div style="margin-left: 10px; margin-top: 5px">
+        <h1 style="color: red">Error!</h1>
+        <div style="margin-left: 50px;">
+            <h4>Message</h4>
+            <div>@Model.Message</div>
+            <a href="javascript:void(0);" onclick="history.go(-1);">Go Back</a>
+        </div>
+        <hr />
+        <div style="margin-left: 50px;">
+            <h4>For Developers</h4>
+            <div>@Model.StackTrace</div>
+        </div>
+    </div>
+}
+else
+{
+    <div> Something went wrong! </div>
+}

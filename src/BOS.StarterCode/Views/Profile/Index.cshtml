@@ -1,0 +1,239 @@
+﻿
+@using BOS.StarterCode.Helpers;
+
+@model dynamic;
+
+@{
+    ViewData["Title"] = "My Profile";
+}
+
+<script type="text/javascript">
+    var Model=@JavaScriptConvert.SerializeObject(Model);
+    Model.Role =@(JavaScriptConvert.SerializeObject(User.FindFirst(c => c.Type == "Role").Value.ToString()));
+    @{
+        var UserRole = User.FindFirst(c => c.Type == "Role").Value.ToString();
+        var IsUserAllowed = UserRole.Contains("Admin");
+        var rolesList = UserRole.Split(',').ToList();
+        var Operations = (Model != null && Model.Operations != null) ? Model.Operations : null ;
+    }
+</script>
+
+<a id="show-sidebar" class="btn btn-sm btn-dark" href="#">
+    <i class="fas fa-bars"></i>
+</a>
+
+<partial name="~/Views/Shared/Navigation/NavigationMenu.cshtml" />
+
+<main class="page-content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <h1>My Profile</h1>
+                <hr />
+            </div>
+            <div class="col-md-6">
+                @{
+                    @if (Operations != null)
+                    {
+                        @if (Operations.Contains("PVIEW"))
+                        {
+                            <div class="row">
+                                <h4>Personal Details</h4>
+                                <div class="col-md-12">
+                                    <form class="d-block" style="width:100%">
+                                        <div class="row">
+                                            <div class="col-md-6 mt-3">
+                                                <div class="form-group">
+                                                    <label for="@Model.UserInfo.FirstName">
+                                                        First Name
+                                                    </label>
+                                                    @if (Operations.Contains("PEDIT"))
+                                                    {
+                                                        <input type="text" id="profileFirstName" class="form-control" placeholder="Enter First Name" value="@Model.UserInfo.FirstName" />
+                                                    }
+                                                    else
+                                                    {
+                                                        <input type="text" id="profileFirstName" class="form-control" value="@Model.UserInfo.FirstName" disabled />
+                                                    }
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-6 mt-3">
+                                                <div class="form-group">
+                                                    <label for="@Model.UserInfo.LastName">
+                                                        Last Name
+                                                    </label>
+                                                    @if (Operations.Contains("PEDIT"))
+                                                    {
+                                                        <input type="text" id="profileLastName" class="form-control" placeholder="Enter Last Name" value="@Model.UserInfo.LastName" />
+                                                    }
+                                                    else
+                                                    {
+                                                        <input type="text" id="profileLastName" class="form-control" value="@Model.UserInfo.LastName" disabled />
+                                                    }
+                                                </div>
+                                            </div>
+
+
+                                            <div class="col-md-6 mt-3">
+                                                <div class="form-group">
+                                                    <label for="@Model.UserInfo.Email">
+                                                        Email Address
+                                                    </label>
+                                                    @if (Operations.Contains("PEDIT"))
+                                                    {
+                                                        <input type="text" id="profileEmail" class="form-control" placeholder="Enter Last Name" value="@Model.UserInfo.Email" />
+                                                    }
+                                                    else
+                                                    {
+                                                        <input type="text" id="profileEmail" class="form-control" value="@Model.UserInfo.Email" disabled />
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6 mt-3">
+                                                <div class="form-group">
+                                                    @if (Operations.Contains("PEDIT"))
+                                                    {
+                                                        <button id="profileUpdate " class="btn btn-primary" onclick="UpdateProfileInfo(); return false;">Update</button>
+                                                    }
+                                                    else
+                                                    {
+                                                        <button class="btn btn-primary" disabled>Update</button>
+                                                    }
+                                                </div>
+
+                                                @Html.ValidationMessage("CustomError")
+                                            </div>
+                                        </div>
+                                        <hr />
+                                        <div class="row">
+                                            <div class="col-md-6 mt-3">
+                                                <h4>Username</h4>
+
+                                                <div class="form-group">
+                                                    @if (Operations.Contains("PEDIT"))
+                                                    {
+                                                        <input type="email" id="profileUsername" class="form-control" placeholder="Enter Email Address" value="@Model.UserInfo.Username" required />
+                                                    }
+                                                    else
+                                                    {
+                                                        <input type="email" id="profileUsername" class="form-control" placeholder="Enter Email Address" value="@Model.UserInfo.Username" disabled />
+                                                    }
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6"></div>
+                                            <div class="col-sm-6">
+                                                <div class="form-group">
+                                                    @if (Operations.Contains("PEDIT"))
+                                                    {
+                                                        <button class="btn btn-primary" onclick="UpdateUsername(); return false;">Update Username</button>
+                                                    }
+                                                    else
+                                                    {
+                                                        <button class="btn btn-primary" disabled>Update</button>
+                                                    }
+                                                </div>
+                                                @Html.ValidationMessage("CustomError")
+                                            </div>
+                                        </div>
+                                        <hr />
+                                        <div class="row">
+                                            <div class="col-md-6 mt-3 disabled">
+                                                <div class="form-group" id="divRoleBase">
+                                                    <h4>Roles</h4>
+                                                    <br />
+                                                    @{
+                                                        @foreach (var role in Model.AvailableRoles)
+                                                        {
+                                                            @if (rolesList.Contains(role.Name.ToString()))
+                                                            {
+                                                                <input type="checkbox" value="@role.Id" id="@role.Id" for="@role.Id" checked="checked" disabled /> @role.Name <br />
+                                                            }
+                                                        }
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </form>
+
+                                    <hr />
+
+                                    <div class="row">
+                                        <div class="col-sm-6 mt-3">
+
+                                            @if (Operations.Contains("CHPWD"))
+                                            {
+                                                <h4>Change Password</h4>
+                                                <form>
+                                                    <button class="btn btn-outline-secondary" asp-action="ChangePassword">Change Password</button>
+                                                    @Html.ValidationMessage("CustomError")
+                                                </form>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <h3> Sorry, you have no access to this feature </h3>
+                        }
+                    }
+                    else
+                    {
+                        <h3> Sorry, you have no access to this feature! </h3>
+                        <a href="javascript:void(0);" onclick="history.go(-1);">Go Back</a>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+    @{
+        @Html.Hidden("IsUserAllowed", IsUserAllowed);
+    }
+</main>
+
+@if (ViewBag.Message != null)
+{
+    <script>
+        $(document).ready(function () {
+            $(function () {
+                DisplayDialog({ Success: true, Message: '@ViewBag.Message' });
+            });
+        });
+    </script>
+}
+
+
+@if (Model != null && Model.CurrentModuleId != null)
+{
+    <script>
+        var currentModule = $('a[id^="' + Model.CurrentModuleId + '"]');
+
+        currentModule.next(".sidebar-submenu").slideDown(200);
+        currentModule.parent().addClass("active");
+    </script>
+}
+
+<script type="text/javascript">
+    jQuery(function ($) {
+        $("#close-sidebar").click(function () {
+            $(".page-wrapper").removeClass("toggled");
+        });
+        $("#show-sidebar").click(function () {
+            $(".page-wrapper").addClass("toggled");
+        });
+    });
+</script>
+
+<style>
+    .field-validation-error {
+        color: red;
+    }
+</style>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

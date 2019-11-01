@@ -1,0 +1,56 @@
+﻿@using BOS.StarterCode.Helpers;
+
+@model dynamic;
+
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<script type="text/javascript">
+
+    var Model=@JavaScriptConvert.SerializeObject(Model);
+    Model.Role =@(JavaScriptConvert.SerializeObject(User.FindFirst(c => c.Type == "Role").Value.ToString()));
+    @{
+        var UserRole = User.FindFirst(c => c.Type == "Role").Value.ToString();
+        var IsuserAllowed = UserRole.Contains("Admin");
+     }
+
+</script>
+
+
+<a id="show-sidebar" class="btn btn-sm btn-dark" href="#">
+    <i class="fas fa-bars"></i>
+</a>
+
+<partial name="~/Views/Shared/Navigation/NavigationMenu.cshtml" />
+
+<main class="page-content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <h1>Dashboard</h1>
+            </div>
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="col-md-12">
+                        <h4 style="color:#ffcc00">The Dashboard comes here</h4>
+                        <div id="divMessage"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+
+<script type="text/javascript">
+    jQuery(function ($) {
+        $("#close-sidebar").click(function () {
+            $(".page-wrapper").removeClass("toggled");
+        });
+
+        $("#show-sidebar").click(function () {
+            $(".page-wrapper").addClass("toggled");
+        });
+    });
+</script>

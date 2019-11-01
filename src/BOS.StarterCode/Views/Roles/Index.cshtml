@@ -1,0 +1,186 @@
+﻿
+@using BOS.StarterCode.Helpers;
+
+@model dynamic;
+
+@{
+    ViewData["Title"] = "Roles";
+}
+
+<script type="text/javascript">
+
+    var Model=@JavaScriptConvert.SerializeObject(Model);
+    Model.Role =@(JavaScriptConvert.SerializeObject(User.FindFirst(c => c.Type == "Role").Value.ToString()));
+    @{
+        var UserRole = User.FindFirst(c => c.Type == "Role").Value.ToString();
+        var IsuserAllowed = UserRole.Contains("Admin");
+        var Operations = (Model != null && Model.Operations != null) ? Model.Operations : null;
+        }
+
+</script>
+
+
+<a id="show-sidebar" class="btn btn-sm btn-dark" href="#">
+    <i class="fas fa-bars"></i>
+</a>
+
+<partial name="~/Views/Shared/Navigation/NavigationMenu.cshtml" />
+
+<main class="page-content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <h1>Roles</h1>
+            </div>
+            @Html.ValidationMessage("CustomError")
+            <div class="col-md-12">
+                @if (Operations != null)
+                {
+                    <div class="row">
+                        @if (Operations.Contains("RRADD"))
+                        {
+
+                            <div class="col-md-12">
+                                <form>
+                                    <div class="form-group">
+                                        <button class="btn btn-primary float-right" style="margin-left: 10px" asp-action="AddNewRole">Add Role</button>
+                                    </div>
+                                </form>
+                            </div>
+                        }
+
+                        @if (Operations.Contains("RLIST") || Operations.Contains("RVIEW"))
+                        {
+                            <div class="col-md-12 mt-3">
+                                <table class="table" id="tableRoles">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Name</th>
+                                            <th scope="col">Description</th>
+                                            <th scope="col">Rank</th>
+                                            <th scope="col">Created On</th>
+                                            @if (Operations.Contains("REDIT") || Operations.Contains("PPADD,PLIST,PEDIT,PDLTE") || Operations.Contains("RDLTE"))
+                                            {
+                                                <th scope="col">Action</th>
+                                            }
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @{
+                                            @foreach (var role in Model.RoleList)
+                                            {
+                                                <tr id="@role.Id">
+                                                    <td class="align-middle">@role.Name</td>
+                                                    <td class="align-middle">@role.Description</td>
+                                                    <td class="align-middle">@role.Rank</td>
+                                                    <td class="align-middle">@role.CreatedOn</td>
+                                                    @if (Operations.Contains("REDIT") || Operations.Contains("PPADD,PLIST,PEDIT,PDLTE") || Operations.Contains("RDLTE"))
+                                                    {
+                                                        <td>
+                                                            <div class="fas fa-ellipsis-v position-relative pointer" id="rolerow__@role.Id" onclick="OnRoleRowActionClicked(this); return false;">
+                                                                <div class="action_div" id="action_div__@role.Id">
+                                                                    <ul>
+                                                                        @if (Operations.Contains("REDIT"))
+                                                                        {
+                                                                            <li><a href="#" id="@role.Id" onclick="OnRoleEditClicked(this); return false">Edit</a></li>
+                                                                        }
+
+                                                                        @if (Operations.Contains("PPADD") && Operations.Contains("PPADD") && Operations.Contains("PPADD") && Operations.Contains("PPADD"))
+                                                                        {
+                                                                            <li><a href="#" id="@role.Id" onclick="OnManagePermissionsClicked(this); return false">Manage Permissions</a></li>
+                                                                        }
+
+                                                                        @if (Operations.Contains("RDLTE"))
+                                                                        {
+                                                                            <li><a href="#" id="@role.Id" onclick="OnRoleDeleteClicked(this); return false">Delete</a></li>
+                                                                        }
+
+                                                                    </ul>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                    }
+                                                </tr>
+                                            }
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                        else
+                        {
+                            <h3> Sorry, you have no access to this feature! </h3>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <h3> Sorry, you have no access to this feature! </h3>
+                    <a href="javascript:void(0);" onclick="history.go(-1);">Go Back</a>
+                }
+            </div>
+        </div>
+    </div>
+</main>
+
+<a id="hiddenRoleEdit" href="" class="none"></a>
+<a id="hiddenRoleManagePerms" href="" class="none"></a>
+
+@if (ViewBag.Message != null)
+{
+    <script>
+        $(document).ready(function () {
+            $(function () {
+                DisplayDialog({ Success: true, Message: '@ViewBag.Message' });
+            });
+        });
+    </script>
+}
+
+<style>
+    .field-validation-error {
+        color: red;
+    }
+</style>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+
+<script type="text/javascript">
+    $(document).mouseup(function (e) {
+        var container = $("#action_div");
+        if (!container.is(e.target) && container.has(e.target).length === 0) {
+            container.hide();
+        }
+        $(".action_div").hide();
+    });
+
+    $(function () {
+        $('#show_action_div').click(function () {
+            $('#action_div').show();
+            return false;
+        });
+    });
+
+    jQuery(function ($) {
+        $("#close-sidebar").click(function () {
+            $(".page-wrapper").removeClass("toggled");
+        });
+
+        $("#show-sidebar").click(function () {
+            $(".page-wrapper").addClass("toggled");
+        });
+    });
+
+    function OnRoleRowActionClicked(row) {
+        var selectedId = row.id.split('__')[1];
+        var selectedElement = document.getElementById("action_div__" + selectedId);
+        if (selectedElement.style.display === "none") {
+            selectedElement.style.display = "block";
+        } else {
+            selectedElement.style.display = "none";
+        }
+    }
+
+</script>

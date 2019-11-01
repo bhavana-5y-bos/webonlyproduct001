@@ -1,0 +1,285 @@
+﻿
+@using BOS.StarterCode.Helpers;
+
+
+@model dynamic;
+
+@{
+    ViewData["Title"] = "Users";
+}
+
+<script type="text/javascript">
+
+        var Model=@JavaScriptConvert.SerializeObject(Model);
+        Model.Role =@(JavaScriptConvert.SerializeObject(User.FindFirst(c => c.Type == "Role").Value.ToString()));
+        @{
+            var UserRole = User.FindFirst(c => c.Type == "Role").Value.ToString();
+            var IsuserAllowed = UserRole.Contains("Admin");
+            var Operations = (Model != null && Model.Operations != null) ? Model.Operations : null;
+         }
+
+</script>
+
+<a id="show-sidebar" class="btn btn-sm btn-dark" href="#">
+    <i class="fas fa-bars"></i>
+</a>
+
+<partial name="~/Views/Shared/Navigation/NavigationMenu.cshtml" />
+
+<main class="page-content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <h1>Users</h1>
+            </div>
+            @Html.ValidationMessage("CustomError")
+            <div class="col-md-12">
+                @if (Operations != null)
+                {
+                    <div class="row">
+
+                        @if (Operations.Contains("UUADD"))
+                        {
+
+                            <div class="col-md-12">
+                                <form>
+                                    <div class="form-group">
+                                        <button class="btn btn-primary float-right" style="margin-left: 10px" asp-action="AddNewUser">Add User</button>
+                                    </div>
+                                </form>
+                            </div>
+
+                        }
+
+                        @if (Operations.Contains("ULIST") || Operations.Contains("UVIEW"))
+                        {
+                            <div class="col-md-12 mt-3">
+                                <div class="table-responsive">
+                                    <table class="table user_table" id="tableUsers">
+                                        <thead>
+                                            <tr>
+                                                <th>FIRST NAME</th>
+                                                <th>LAST NAME</th>
+                                                <th>USERNAME</th>
+                                                <th>EMAIL</th>
+                                                <th>ROLES</th>
+                                                <th>ADDED ON</th>
+                                                @if (Operations.Contains("UEDIT") || Operations.Contains("RSPWD") || Operations.Contains("UDLTE"))
+                                                {
+                                                    <th>ACTION</th>
+                                                }
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @{
+                                                @foreach (var user in Model.UserList)
+                                                {
+                                                    <tr id="@user.UpdatedId">
+                                                        <td>@user.FirstName</td>
+                                                        <td>@user.LastName</td>
+                                                        <td>@user.Username</td>
+                                                        <td>@user.Email</td>
+                                                        <td>
+                                                            @user.Roles.Count
+                                                            @{
+                                                                var roles = string.Empty;
+                                                                foreach (var role in user.Roles)
+                                                                {
+                                                                    if (roles.Length > 0)
+                                                                    {
+                                                                        roles = roles + ", " + role.Role.Name;
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        roles = role.Role.Name;
+                                                                    }
+                                                                }
+                                                                <p>@roles</p>;
+                                                            }
+
+                                                        </td>
+                                                        <td>@user.CreatedOn</td>
+                                                        @if (Operations.Contains("UEDIT") || Operations.Contains("RSPWD") || Operations.Contains("UDLTE"))
+                                                        {
+                                                            <td>
+                                                                <div class="fas fa-ellipsis-v position-relative pointer" id="userrow__@user.UpdatedId" onclick="OnUserRowActionClicked(this); return false;">
+                                                                    <div class="action_div" id="action_div__@user.UpdatedId">
+                                                                        <ul>
+                                                                            @if (Operations.Contains("UEDIT"))
+                                                                            {
+                                                                                <li><a href="#" id="@user.UpdatedId" onclick="OnUserEditClicked(this); return false">Edit</a></li>
+                                                                            }
+
+                                                                            @if (Operations.Contains("RSPWD"))
+                                                                            {
+                                                                                <li><a href="#" id="@user.UpdatedId" onclick="OnChangePasswordClicked(this); return false">Change Password</a></li>
+                                                                            }
+
+                                                                            @if (Operations.Contains("UDLTE"))
+                                                                            {
+                                                                                <li><a href="#" id="@user.UpdatedId" onclick="OnUserDeleteClicked(this); return false">Delete</a></li>
+                                                                            }
+                                                                        </ul>
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                        }
+                                                    </tr>
+                                                }
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <h3> Sorry, you have no access to this feature! </h3>
+                        }
+
+                    </div>
+                }
+                else
+                {
+                    <h3> Sorry, you have no access to this feature! </h3>
+                    <a href="javascript:void(0);" onclick="history.go(-1);">Go Back</a>
+                }
+            </div>
+        </div>
+    </div>
+</main>
+
+<a id="hiddenUserEdit" href="" class="none"></a>
+
+<div class="modal fade" id="myModal" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Set Password</h4>
+            </div>
+            <div class="modal-body">
+                <div class="col-sm-12">
+                    <div class="position-relative">
+                        <label class="control-label">Password</label>
+                        <input class="form-control" type="password" placeholder="Enter password" id="password" required />
+                        <span id='passwordMessage'></span>
+                    </div>
+                </div>
+                <div id="pass_type" style="margin-left: 20px; margin-top: 5px; font-size:medium"></div>
+                <br />
+                <div class="col-sm-12">
+                    <div class="position-relative">
+                        <label class="control-label">Confirm Password</label>
+                        <input class="form-control" type="password" placeholder="Retype the password" id="confirmpassword" required />
+                        <span id='message'></span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary mr-1" data-dismiss="modal">Cancel</button>
+
+                <button type="button" class="btn btn-primary" onclick="SetPassword(); return false;">Set</button>
+            </div>
+        </div>
+        <input type="hidden" id="hiddenUserIdChangePwd" />
+    </div>
+</div>
+
+@if (ViewBag.Message != null)
+{
+    <script>
+        $(document).ready(function () {
+            $(function () {
+                DisplayDialog({ Success: true, Message: '@ViewBag.Message' });
+            });
+        });
+    </script>
+}
+
+<style>
+    .field-validation-error {
+        color: red;
+    }
+</style>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+
+
+<script type="text/javascript">
+    $('#confirmpassword').on('keyup', function () {
+        if ($('#password').val() == $('#confirmpassword').val()) {
+            $('#message').html('');
+        } else
+            $('#message').html('Not Matching').css('color', 'red');
+    });
+
+
+    $(document).mouseup(function (e) {
+        var container = $("#action_div");
+        if (!container.is(e.target) && container.has(e.target).length === 0) {
+            container.hide();
+        }
+        $(".action_div").hide();
+    });
+
+    $(function () {
+        $('#show_action_div').click(function () {
+            $('#action_div').show();
+            return false;
+        });
+    });
+
+    $("#password").keyup(function () {
+        CheckStrength();
+    });
+
+    jQuery(function ($) {
+
+        $("#close-sidebar").click(function () {
+            $(".page-wrapper").removeClass("toggled");
+        });
+
+        $("#show-sidebar").click(function () {
+            $(".page-wrapper").addClass("toggled");
+        });
+    });
+
+    function OnUserRowActionClicked(row) {
+        var selectedId = row.id.split('__')[1];
+        var selectedElement = document.getElementById("action_div__" + selectedId);
+        if (selectedElement.style.display === "none") {
+            selectedElement.style.display = "block";
+        } else {
+            selectedElement.style.display = "none";
+        }
+    }
+
+    function CheckStrength() {
+        var val = document.getElementById("password").value;
+        var no = 0;
+        if (val !== "") {
+            if (val.length <= 6) no = 1;
+
+            if (val.length > 6 && (val.match(/[a-z]/) || val.match(/\d+/) || val.match(/.[!,@@,#,$,%,^,&,*,?,_,~,-,(,)]/))) no = 2;
+
+            if (val.length > 6 && ((val.match(/[a-z]/) && val.match(/\d+/)) || (val.match(/\d+/) && val.match(/.[!,@@,#,$,%,^,&,*,?,_,~,-,(,)]/)) || (val.match(/[a-z]/) && val.match(/.[!,@@,#,$,%,^,&,*,?,_,~,-,(,)]/)))) no = 3;
+
+            if (val.length > 6 && val.match(/[a-z]/) && val.match(/\d+/) && val.match(/.[!,@@,#,$,%,^,&,*,?,_,~,-,(,)]/)) no = 4;
+
+            if (no === 1) document.getElementById("pass_type").innerHTML = '<div style="color: red;">Very Weak</div>';
+
+            if (no === 2) document.getElementById("pass_type").innerHTML = '<div style="color: #F5BCA9;">Weak</div>';
+
+            if (no === 3) document.getElementById("pass_type").innerHTML = '<div style="color: #FF8000;">Fair</div>';
+
+            if (no === 4) document.getElementById("pass_type").innerHTML = '<div style="color: #328c48;">Strong</div>';
+        } else {
+            meter.style.backgroundColor = "white";
+            document.getElementById("pass_type").innerHTML = "";
+        }
+    }
+</script>

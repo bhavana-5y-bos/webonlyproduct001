@@ -1,0 +1,92 @@
+﻿@model AuthModel
+
+@{
+    ViewData["Title"] = "Login";
+}
+
+<div class="login_container">
+    <form asp-action="AuthenticateUser">
+        <div class="row form-group">
+            <div class="col-sm-12 text-center">
+                <img class="logo_image mt-3" src="../images/logo.png" />
+            </div>
+            <div class="col-sm-12 mt-3">
+                <div class="form-group position-relative">
+                    <label asp-for="Username" class="control-label"></label>
+                    <input asp-for="Username" class="form-control" placeholder="Enter Username" id="loginUsername"/>
+                    <span asp-validation-for="Username" class="text-danger error_text"></span>
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <div class="form-group position-relative">
+                    <div class="password-show" id=divShowPassword>
+                        <i class="fas fa-eye-slash text-primary" data-toggle="tooltip" data-placement="left" title="" aria-hidden="true" data-original-title="Show Password"></i>
+                        <span class="sr-only">Show Password</span>
+                    </div>
+                    <label asp-for="Password" class="control-label"></label>
+                    <input type="password" class="form-control" placeholder="Enter Password" asp-for="Password" id="inputPassword" />
+                    <span asp-validation-for="Password" class="text-danger error_text"></span>
+                </div>
+            </div>
+            <div class="col-sm-12 mt-3">
+                <div class="form-group" id="divButtonAndError">
+                    <button class="btn btn-primary d-block w-100">Login</button>
+                    @Html.ValidationMessage("CustomError")
+                </div>
+            </div>
+        </div>
+    </form>
+    <div class="row">
+        <div class="col-md-5">
+            <p>@Html.ActionLink("Forgot password?", "ForgotPassword")</p>
+        </div>
+        <div class="col-md-7 text-right">
+            <p>Don't have an account? @Html.ActionLink("Register", "Register")</p>
+        </div>
+    </div>
+</div>
+
+@if (ViewBag.Message != null)
+{
+    <script>
+        $(document).ready(function () {
+            $(function () {
+                DisplayDialog({ Success: true, Message: '@ViewBag.Message' });
+            });
+        });
+    </script>
+}
+
+<script>
+    $(document).ready(function () {
+        $('[data-toggle="tooltip"]').tooltip();
+        $('[data-toggle="popover"]').popover();
+    });
+
+    $('#divShowPassword').mousedown(function () {
+        $('#inputPassword').attr('type', 'text');
+    });
+
+    $('#divShowPassword').mouseup(function () {
+        $('#inputPassword').attr('type', 'password');
+    });
+
+    $("#loginUsername, #inputPassword").keyup(function () {
+        if ($("#divButtonAndError>span").hasClass("field-validation-error")) {
+            $("#divButtonAndError>span").remove();
+        }
+    });
+
+</script>
+
+<style>
+    .field-validation-error {
+        color: red;
+    }
+</style>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+
+

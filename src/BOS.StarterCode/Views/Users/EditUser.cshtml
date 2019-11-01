@@ -1,0 +1,179 @@
+﻿
+@using BOS.StarterCode.Helpers;
+
+@model dynamic;
+
+@{
+    ViewData["Title"] = "Edit User";
+}
+
+<script type="text/javascript">
+    var Model=@JavaScriptConvert.SerializeObject(Model);
+    Model.Role =@(JavaScriptConvert.SerializeObject(User.FindFirst(c => c.Type == "Role").Value.ToString()));
+    @{
+        var UserRole = User.FindFirst(c => c.Type == "Role").Value.ToString();
+        var IsUserAllowed = UserRole.Contains("Admin");
+        var rolesList = Model.RolesList;
+        var UserId = User.FindFirst(c => c.Type == "UserId").Value.ToString();
+        if (UserId == @Model.UserInfo.Id.ToString())
+        {
+            IsUserAllowed = false;
+        }
+    }
+</script>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <h1 class="mt-3">Edit User</h1>
+        </div>
+        <div class="col-md-12">
+            <form>
+                <div class="row">
+                    <div class="col-md-4"></div>
+                    <div class="col-md-4">
+                        <div class="row">
+                            <div class="col-md-6 mt-3">
+                                <input type="hidden" id="hiddenEditUserId" value="@Model.UserInfo.UpdatedId" />
+                                <div class="form-group">
+                                    <label for="@Model.UserInfo.FirstName">
+                                        First Name <span style="color: red;">*</span>
+                                    </label>
+                                    <input type="text" id="editUserFirstName" class="form-control" placeholder="Enter First Name" value="@Model.UserInfo.FirstName" />
+                                    <span id="spanFirstName" style="color: red;"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mt-3">
+                                <div class="form-group">
+                                    <label for="@Model.UserInfo.LastName">
+                                        Last Name <span style="color: red;">*</span>
+                                    </label>
+                                    <input type="text" id="editUserLastName" class="form-control" placeholder="Enter Last Name" value="@Model.UserInfo.LastName" />
+                                    <span id="spanLastName" style="color: red;"></span>
+                                </div>
+                            </div>
+                            <div class="col-sm-12 mt-3">
+                                <div class="form-group">
+                                    <label for="@Model.UserInfo.Email">
+                                        Email Address <span style="color: red;">*</span>
+                                    </label>
+                                    <input type="email" id="email" class="form-control" placeholder="Enter Email Address" value="@Model.UserInfo.Email" />
+                                    <span id="spanEmail" style="color: red;"></span>
+                                </div>
+                            </div>
+                            <div class="col-sm-12 mt-3">
+                                <div class="form-group">
+                                    <label for="@Model.UserInfo.Username">
+                                        Username <span style="color: red;">*</span>
+                                    </label>
+                                    <input type="text" id="editUserUsername" class="form-control" placeholder="Enter Username" value="@Model.UserInfo.Username" />
+                                    <span id="spanUsername" style="color: red;"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mt-3">
+                                <div class="form-group" id="divRoleBase">
+                                    <h4> Roles </h4>
+                                    <br />
+
+                                    @{
+                                        @if (IsUserAllowed)
+                                        {
+                                            @foreach (var role in Model.AvailableRoles)
+                                            {
+                                                @if (rolesList.Contains(role.Name.ToString()))
+                                                {
+                                                    <input type="checkbox" value="@role.Id" id="@role.Id" for="@role.Id" checked="checked" name="@role.Name" /> @role.Name <br />
+                                                }
+                                                else
+                                                {
+                                                    <input type="checkbox" value="@role.Id" id="@role.Id" name="@role.Name" /> @role.Name <br />
+                                                }
+                                            }
+                                        }
+                                        else
+                                        {
+                                            @foreach (var role in Model.AvailableRoles)
+                                            {
+                                                @if (rolesList.Contains(role.Name.ToString()))
+                                                {
+                                                    <input type="checkbox" value="@role.Id" id="@role.Id" for="@role.Id" checked="checked" name="@role.Name" disabled /> @role.Name <br />
+                                                }
+                                            }
+                                        }
+                                    }
+                                    <span id="spanRoles" style="color: red;"></span>
+                                </div>
+                            </div>
+                            <div class="col-sm-12">
+                                <div class="form-group">
+                                    <button class="btn btn-primary d-block w-100" onclick="UpdateUserInfo(); return false;">Update Information</button>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <a asp-action="Index">Back to Users List</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4"></div>
+                </div>
+                @Html.ValidationMessage("CustomError")
+            </form>
+        </div>
+    </div>
+</div>
+@{
+    @Html.Hidden("IsUserAllowed", IsUserAllowed);
+}
+
+@if (ViewBag.Message != null)
+{
+    <script>
+        $(document).ready(function () {
+            $(function () {
+                setTimeout(function () {
+                    alert(@ViewBag.Message);
+                 DisplayDialog({ Success: true, Message: '@ViewBag.Message' });
+                }, 500);
+            });
+        });
+    </script>
+}
+
+<style>
+    .field-validation-error {
+        color: red;
+    }
+</style>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+
+<script>
+    $('#editUserFirstName').on('keyup', function () {
+        if ($("#editUserFirstName")[0].value.length > 0) {
+            $("#spanFirstName")[0].innerHTML = '';
+        }
+    });
+
+    $('#editUserLastName').on('keyup', function () {
+        if ($("#editUserLastName")[0].value.length > 0) {
+            $("#spanLastName")[0].innerHTML = '';
+        }
+    });
+
+    $('#email').on('keyup', function () {
+        if ($("#email")[0].value.length > 0) {
+            var isEmailValid = IsEmailValid($("#email")[0].value);
+            if (!isEmailValid)
+                $("#spanEmail")[0].innerHTML = "Incorrect email format";
+            else
+                $("#spanEmail")[0].innerHTML = '';
+        }
+    });
+
+    $('#editUserUsername').on('keyup', function () {
+        if ($("#editUserUsername")[0].value.length > 0) {
+            $("#spanUsername")[0].innerHTML = '';
+        }
+    });
+</script>
